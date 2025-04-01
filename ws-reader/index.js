@@ -18,6 +18,6 @@ socket.addEventListener('message', (msg) => {
   onMessage(msg);
 });
 
-socket.addEventListener('close', (code, reason) => {
-  onClose(code, reason);
+socket.addEventListener('close', (msg) => {
+  onClose(msg);
 });

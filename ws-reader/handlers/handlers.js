@@ -1,24 +1,28 @@
-const { savePair } = require("../redis/redis");
+const { savePair } = require('../redis/redis');
+const { getPairNames } = require('../parser/parser');
+const path = require('node:path');
 
-const onError = (error) => {
-  console.error(`Error(${new Date(Date.now()).toISOString()}): `, err);
-};
+const PAIRS_PATH = path.resolve(__dirname, '..', 'assets', 'assets.txt');
 
-const onOpen = (socket) => {
+const onOpen = async (socket) => {
   console.log('Connected to Binance socket server!\n');
   
+  const pairNames = await getPairs();
   socket.send(JSON.stringify({
-    method: "SUBSCRIBE",
-    params: [
-      "btcusdt@trade",
-      'adausdt@trade',
-    ],
+    method: 'SUBSCRIBE',
+    params: pairNames,
     id: 0, // no matter
   }));
 };
 
-const onClose = (code, reason) => {
-  console.log(`Connection was closed. Code: ${code}. Reason: ${reason}`);
+const getPairs = async () => {
+  try {
+    const pairNames = await getPairNames(PAIRS_PATH);
+    return pairNames;
+  } catch (err) {
+    console.error('Error getting pairs: ', err);
+    process.exit(1);
+  }
 };
 
 const onMessage = (msg) => {
@@ -35,6 +39,14 @@ const onMessage = (msg) => {
     timestamp: data.T,
   });
   savePair(data.s.toLowerCase(), dataToSave);
+};
+
+const onClose = (msg) => {
+  console.dir(msg.code);
+};
+
+const onError = (err) => {
+  console.error(`Error(${new Date(Date.now()).toISOString()}): `, err);
 };
 
 module.exports = {
