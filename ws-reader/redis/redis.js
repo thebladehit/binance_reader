@@ -4,7 +4,7 @@ const redis = new Redis();
 
 const streamPrefix = 'binance';
 
-const pipeline = redis.pipeline();
+let pipeline = redis.pipeline();
 
 const savePair = async (pairName, data) => {
   const streamKey = `${streamPrefix}:${pairName}`;
@@ -12,7 +12,10 @@ const savePair = async (pairName, data) => {
 }
 
 setInterval(() => {
-  pipeline.exec();
+  if (pipeline.length !== 0) {
+    pipeline.exec();
+    pipeline = redis.pipeline();
+  }
 }, REDIS_PIPELINE_TIMEOUT);
 
 module.exports = { savePair }
