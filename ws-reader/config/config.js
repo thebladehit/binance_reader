@@ -4,4 +4,4 @@ const MESSAGES_TIMEOUT = 2000;
 module.exports = {
   REDIS_PIPELINE_TIMEOUT,
   MESSAGES_TIMEOUT,
-}
+};

@@ -15,4 +15,4 @@ const readPairsPrice = (pairNames) => {
   return pipeline.exec();
 };
 
-module.exports = { readPairsPrice }
+module.exports = { readPairsPrice };

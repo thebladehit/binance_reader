@@ -18,4 +18,4 @@ setInterval(() => {
   }
 }, REDIS_PIPELINE_TIMEOUT);
 
-module.exports = { savePair }
+module.exports = { savePair };

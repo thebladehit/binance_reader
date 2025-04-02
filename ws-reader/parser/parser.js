@@ -7,4 +7,4 @@ const getPairNames = async (filePath) => {
     .map((pair) => (pair.split('/').join('')).toLowerCase().replace(/\u200B/g, '') + '@trade');
 };
 
-module.exports = { getPairNames }
+module.exports = { getPairNames };
