@@ -1,13 +1,18 @@
 const Redis = require('ioredis');
+const { REDIS_PIPELINE_TIMEOUT } = require('../config/config');
 const redis = new Redis();
 
 const streamPrefix = 'binance';
 
+const pipeline = redis.pipeline();
+
 const savePair = async (pairName, data) => {
   const streamKey = `${streamPrefix}:${pairName}`;
-  redis.xadd(streamKey, '*', 'data', data);
+  pipeline.xadd(streamKey, '*', 'data', data);
 }
 
-module.exports = {
-  savePair,
-}
+setInterval(() => {
+  pipeline.exec();
+}, REDIS_PIPELINE_TIMEOUT);
+
+module.exports = { savePair }
