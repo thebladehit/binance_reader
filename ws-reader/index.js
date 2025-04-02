@@ -1,4 +1,3 @@
-const socket = new WebSocket('wss://stream.binance.com:9443/ws');
 const { 
   onOpen,
   onError,
@@ -6,18 +5,26 @@ const {
   onMessage,
 } = require('./handlers/handlers');
 
-socket.addEventListener('open', () => {
-  onOpen(socket);
-});
+const connectToServer = () => {
+  const socket = new WebSocket('wss://stream.binance.com:9443/ws');
+  socket.addEventListener('open', () => {
+    onOpen(socket);
+  });
+  
+  socket.addEventListener('error', (err) => {
+    onError(err);
+  });
+  
+  socket.addEventListener('message', (msg) => {
+    onMessage(msg);
+  });
+  
+  socket.addEventListener('close', (msg) => {
+    onClose(msg);
+    setTimeout(() => {
+      connectToServer();
+    }, 1000);
+  });
+}
 
-socket.addEventListener('error', (err) => {
-  onError(err);
-});
-
-socket.addEventListener('message', (msg) => {
-  onMessage(msg);
-});
-
-socket.addEventListener('close', (msg) => {
-  onClose(msg);
-});
+connectToServer();
