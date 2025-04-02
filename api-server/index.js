@@ -1,25 +1,19 @@
 const express = require('express');
 const { PORT } = require('./config/config');
-const { readPairsPrice } = require('./redis/redis');
+const { getPairsPrice, getPairsPriceStats } = require('./handlers/handlers');
 
 const app = express();
 
 app.get('/price/:pairs', async (req, res) => {
-  const pairNames = req.params.pairs.split(',');
-  const pairPrices = await readPairsPrice(pairNames);
-  const result = [];
+  const pairs = req.params.pairs;
+  const result = await getPairsPrice(pairs);
+  res.status(200).json(result);
+});
 
-  for (let i = 0; i < pairNames.length; i++) {
-    const pairName = pairNames[i];
-    const pairPrice = pairPrices[i];
-    if (pairPrice[1].length === 0) {
-      result.push({ [pairName]: 'no data on this pair' });
-    } else {
-      result.push({
-        [pairName]: JSON.parse(pairPrice[1][0][1][1]).price,
-      })
-    }
-  }
+app.get('/price/:pairs/stats', async (req, res) => {
+  const pairs = req.params.pairs;
+  const timeInterval = req.query.interval || 3600 * 1000;
+  const result = await getPairsPriceStats(pairs, timeInterval);
   res.status(200).json(result);
 });
 

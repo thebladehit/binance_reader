@@ -1,4 +1,5 @@
 const Redis = require('ioredis');
+const { PAIR_STAT_COUNT } = require('../config/config');
 const redis = new Redis();
 
 const streamPrefix = 'binance';
@@ -15,4 +16,19 @@ const readPairsPrice = (pairNames) => {
   return pipeline.exec();
 };
 
-module.exports = { readPairsPrice };
+const readPairsPriceStat = (pairName, timeInterval) => {
+  const pipeline = redis.pipeline();
+  let curTime = Date.now();
+  for (let i = 0; i < PAIR_STAT_COUNT; i++) {
+    const streamKey = `${streamPrefix}:${pairName}`;
+    const timeId = `${curTime}-0`;
+    pipeline.xread('COUNT', 1, 'STREAMS', streamKey, timeId);
+    curTime -= timeInterval;
+  }
+  return pipeline.exec();
+};
+
+module.exports = { 
+  readPairsPrice,
+  readPairsPriceStat,
+};
