@@ -1,6 +1,7 @@
 const { savePair } = require('../redis/redis');
 const { getPairNames } = require('../parser/parser');
 const path = require('node:path');
+const { MESSAGES_TIMEOUT } = require('../config/config');
 
 const PAIRS_PATH = path.resolve(__dirname, '..', 'assets', 'assets.txt');
 
@@ -25,6 +26,7 @@ const getPairs = async () => {
   }
 };
 
+let requests = 0; // used to track operations count
 const onMessage = (msg) => {
   const data = JSON.parse(msg.data);
 
@@ -39,7 +41,13 @@ const onMessage = (msg) => {
     timestamp: data.T,
   });
   savePair(data.s.toLowerCase(), dataToSave);
+  requests++;
 };
+
+setInterval(() => {
+  console.log(requests);
+  requests = 0;
+}, MESSAGES_TIMEOUT);
 
 const onClose = (msg) => {
   console.dir(msg.code);
