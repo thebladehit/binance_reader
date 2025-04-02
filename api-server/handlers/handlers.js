@@ -28,11 +28,12 @@ const getPairsPriceStats = async (pairs, timeInterval) => {
 
   for (const pairName of pairNames) {
     const pairPriceStats = await readPairsPriceStat(pairName, timeInterval);
+
     const obj = { [pairName]: [] };
     let prevTradeId = 0;
     for (const priceStat of pairPriceStats) {
       if (priceStat[1]) {
-        const data = JSON.parse(priceStat[1][0][1][0][1][1]);
+        const data = JSON.parse(priceStat[1][0][1][1]);
         if (data.tradeId === prevTradeId) {
           break;
         }

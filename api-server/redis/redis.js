@@ -16,14 +16,17 @@ const readPairsPrice = (pairNames) => {
   return pipeline.exec();
 };
 
-const readPairsPriceStat = (pairName, timeInterval) => {
+const readPairsPriceStat = async (pairName, timeInterval) => {
+  const streamKey = `${streamPrefix}:${pairName}`;
+
+  const latestEntry = await redis.xrevrange(streamKey, '+', '-', 'COUNT', 1);
+  let [latestId] = latestEntry[0];
+  let lastTime = parseInt(latestId.split('-')[0]);
+
   const pipeline = redis.pipeline();
-  let curTime = Date.now();
   for (let i = 0; i < PAIR_STAT_COUNT; i++) {
-    const streamKey = `${streamPrefix}:${pairName}`;
-    const timeId = `${curTime}-0`;
-    pipeline.xread('COUNT', 1, 'STREAMS', streamKey, timeId);
-    curTime -= timeInterval;
+    const timeId = `${lastTime - timeInterval * i}-0`;
+    pipeline.xrange(streamKey, timeId, '+', 'COUNT', 1);
   }
   return pipeline.exec();
 };
