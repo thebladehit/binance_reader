@@ -3,7 +3,7 @@ const { getPairNames } = require('../parser/parser');
 const path = require('node:path');
 const { MESSAGES_TIMEOUT } = require('../config/config');
 
-const PAIRS_PATH = path.resolve(__dirname, '..', 'assets', 'assets.txt');
+const PAIRS_PATH = path.resolve(__dirname, '..', '..', 'assets', 'assets.txt');
 
 const onOpen = async (socket) => {
   console.log('Connected to Binance socket server!\n');
