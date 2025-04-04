@@ -1,9 +1,7 @@
 const { savePair } = require('../redis/redis');
-const { getPairNames } = require('../parser/parser');
-const path = require('node:path');
 const { MESSAGES_TIMEOUT } = require('../config/config');
-
-const PAIRS_PATH = path.resolve(__dirname, '..', '..', 'assets', 'assets.txt');
+const { getPairNamesWithTradeStream } = require('../../common/parser/parser');
+const { PAIRS_PATH } = require('../../common/constants/constanse');
 
 const onOpen = async (socket) => {
   console.log('Connected to Binance socket server!\n');
@@ -18,7 +16,7 @@ const onOpen = async (socket) => {
 
 const getPairs = async () => {
   try {
-    const pairNames = await getPairNames(PAIRS_PATH);
+    const pairNames = await getPairNamesWithTradeStream(PAIRS_PATH, '@trade');
     return pairNames;
   } catch (err) {
     console.error('Error getting pairs: ', err);
