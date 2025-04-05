@@ -5,6 +5,7 @@ const { READ_COUNT_FROM_ONE_PAIR, READ_MAX_COUNT } = require('./config/config');
 const { saveEntries, closePGConnection } = require('./pg/pg');
 
 const start = async () => {
+  console.log('Started ', new Date().toISOString());
   const pairs = await getPairNames(PAIRS_PATH);
   const movedCount = await moveDataToDb(pairs, `${DELETION_PREFIX}:${STREAM_PREFIX}`);
   if (movedCount === 0) {
@@ -13,6 +14,7 @@ const start = async () => {
   
   closeRedisConnection();
   closePGConnection();
+  console.log('Finished ', new Date().toISOString());
 };
   
 const moveDataToDb = async (pairs, prefix) => {
