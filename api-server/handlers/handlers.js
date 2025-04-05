@@ -31,7 +31,11 @@ const getPairsPriceStats = async (pairs, timeInterval) => {
     const pairPriceStats = await readPairPriceStat(pairName, timeInterval);
     const obj = { [pairName]: [] };
     for (const priceStat of pairPriceStats) {
-      const data = priceStat.rows[0]
+      if (priceStat.status === 'rejected') {
+        obj[pairName] = 'no data on this pair';
+        continue;
+      }
+      const data = priceStat.value.rows[0]
       if (!data) {
         continue;
       }

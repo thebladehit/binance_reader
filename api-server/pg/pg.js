@@ -20,7 +20,7 @@ const readPairPriceStat = async (pairName, interval) => {
     `;
     queries.push(client.query(sqlQuery, [start, end]));
   }
-  return Promise.all(queries);
+  return Promise.allSettled(queries);
 };
 
 module.exports = { readPairPriceStat };
