@@ -1,8 +1,7 @@
 const Redis = require('ioredis');
-const { PAIR_STAT_COUNT } = require('../config/config');
+const { PAIR_STAT_COUNT } = require('../api-server/config/config');
+const { STREAM_PREFIX } = require('../common/constants/constanse');
 const redis = new Redis();
-
-const streamPrefix = 'binance';
 
 const readPairsPrice = (pairNames) => {
   const pipeline = redis.pipeline();
@@ -10,16 +9,19 @@ const readPairsPrice = (pairNames) => {
     if (pairName.length === 0) {
       continue;
     }
-    const streamKey = `${streamPrefix}:${pairName}`;
+    const streamKey = `${STREAM_PREFIX}:${pairName}`;
     pipeline.xrevrange(streamKey, '+', '-', 'COUNT', 1);
   }
   return pipeline.exec();
 };
 
 const readPairsPriceStat = async (pairName, timeInterval) => {
-  const streamKey = `${streamPrefix}:${pairName}`;
+  const streamKey = `${STREAM_PREFIX}:${pairName}`;
 
   const latestEntry = await redis.xrevrange(streamKey, '+', '-', 'COUNT', 1);
+  if (!latestEntry.length) {
+    return [];
+  }
   let [latestId] = latestEntry[0];
   let lastTime = parseInt(latestId.split('-')[0]);
 
