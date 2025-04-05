@@ -4,7 +4,7 @@ const { PAIRS_PATH } = require('../../common/constants/constanse');
 
 const tableSQL = `
   CREATE TABLE IF NOT EXISTS trades_{{name}} (
-    tradeId BIGINT PRIMARY KEY,
+    tradeId BIGINT,
     price VARCHAR(255),
     quantity VARCHAR(255),
     timestamp BIGINT
