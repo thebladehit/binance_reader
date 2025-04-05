@@ -25,26 +25,21 @@ const getPairsPrice = async (pairs) => {
 const getPairsPriceStats = async (pairs, timeInterval) => {
   const pairNames = pairs.split(',');
 
-  const result = [];
-
-  for (const pairName of pairNames) {
-    const pairPriceStats = await readPairPriceStat(pairName, timeInterval);
+  const result = pairNames.map(async (pairName) => {
     const obj = { [pairName]: [] };
-    for (const priceStat of pairPriceStats) {
-      if (priceStat.status === 'rejected') {
-        obj[pairName] = 'no data on this pair';
-        continue;
+    try {
+      const pairPriceStats = await readPairPriceStat(pairName, timeInterval);
+      for (const priceStat of pairPriceStats.rows) {
+        obj[pairName].push(priceStat);
       }
-      const data = priceStat.value.rows[0]
-      if (!data) {
-        continue;
-      }
-      obj[pairName].push(data);
+    } catch (err) {
+      obj[pairName] = 'no data on this pair';
+    } finally {
+      return obj;
     }
-    result.push(obj);
-  }
+  });
 
-  return result;
+  return Promise.all(result);
 };
 
 module.exports = {

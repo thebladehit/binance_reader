@@ -11,16 +11,17 @@ const client = new Client({
 client.connect();
 
 const readPairPriceStat = async (pairName, interval) => {
-  const queries = [];
+  const sqlQuery = [];
+  const params = [];
+
   for (let i = 0; i < PAIR_STAT_COUNT; i++) {
     const end = Date.now() - interval * i;
     const start = end - interval;
-    const sqlQuery = `
-      SELECT * FROM trades_${pairName} WHERE timestamp BETWEEN $1 and $2 LIMIT 1;
-    `;
-    queries.push(client.query(sqlQuery, [start, end]));
+    const idx = i * 2;
+    sqlQuery.push(`(SELECT * FROM trades_${pairName} WHERE timestamp BETWEEN $${idx + 1} and $${idx + 2} LIMIT 1)`);
+    params.push(start, end);
   }
-  return Promise.allSettled(queries);
+  return client.query(sqlQuery.join(' UNION ALL '), params);
 };
 
 module.exports = { readPairPriceStat };
